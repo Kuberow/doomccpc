@@ -16,7 +16,7 @@ local function closest(x,y,l)
 end
 local function blocked(map,x,y)
   local candidates=nil
-  if map.blockmap then candidates=blocklib.query(blocklib.build(map.blockmap),x,y,RADIUS) end
+  if map.blockmapIndex then candidates=blocklib.query(map.blockmapIndex,x,y,RADIUS) end
   local lines=map.linedefs
   if candidates then lines={};for _,i in ipairs(candidates) do lines[#lines+1]=map.linedefs[i+1] end end
   for _,l in ipairs(lines) do
