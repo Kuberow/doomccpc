@@ -47,7 +47,7 @@ local function frame()
     if term.drawPixels then term.drawPixels(0,0,r.buf,W,H) end
     return
   end
-  if automap then automaplib.draw(r,map,game); return end
+  if automap then automaplib.draw(r,map,game); if term.drawPixels then term.drawPixels(0,0,r.buf,W,H) end; return end
   local sec=map.sectors[map.player.sector or 1]
   if sec then planelib.draw(r,wad,sec.floorpic,game.x,game.y,game.angle,false); planelib.draw(r,wad,sec.ceilingpic,game.x,game.y,game.angle,true) end
   renderlib.walls(r,map,game.x,game.y,game.angle)
@@ -80,7 +80,7 @@ while running do
       elseif a==keys.f6 then loadMap("E1M6")
       elseif a==keys.f7 then loadMap("E1M7")
       elseif a==keys.f8 then loadMap("E1M8")
-        elseif a==keys.f9 then loadMap("E1M9") end
+      elseif a==keys.f9 then loadMap("E1M9") end
     end
   elseif e=="key_up" and not dead then
     if a==keys.w then game.buttons.w=nil
@@ -95,7 +95,7 @@ while running do
       weaponlib.tick(weapon)
       moblib.update(objects,game,map,1/35)
       speciallib.tick(map)
-        if game.health<=0 then dead=true;deadTimer=0 end
+      if game.health<=0 then dead=true;deadTimer=0 end
       frame()
     end
     timer=os.startTimer(1/35)
