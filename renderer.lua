@@ -49,7 +49,6 @@ function M.walls(r,map,px,py,ang)
         end
         for _,p in ipairs(parts) do
           if p.bottom<p.top then p.top,p.bottom=p.bottom,p.top end
-          parts[#parts+1]={}
         end
         for i=1,#parts do
           local p=parts[i]
