@@ -31,11 +31,32 @@ function M.walls(r,map,px,py,ang)
     if x1 and x2 then
       if x1>x2 then x1,x2=x2,x1;d1,d2=d2,d1 end
       if x2>=1 and x1<=r.w then
+        local front=seg.frontsector
+        local back=seg.backsector
         local d=math.max(1,(d1+d2)*0.5)
-        local h=math.max(1,math.min(r.h*2,18000/d))
-        local ya=math.floor(r.h/2-h/2)
-        local yb=math.floor(r.h/2+h/2)
-        segs[#segs+1]={x1=math.max(1,math.floor(x1)),x2=math.min(r.w,math.floor(x2)),ya=ya,yb=yb,d=d,tex=seg.side and seg.side.middle}
+        local scale=12000/d
+        local function sy(z) return math.floor(r.h/2-z*scale/128) end
+        local top=sy(front and front.ceiling or 128)
+        local bottom=sy(front and front.floor or -128)
+        local mid=seg.side and seg.side.middle
+        local parts={}
+        if not back then
+          parts[#parts+1]={top=top,bottom=bottom,tex=mid}
+        else
+          if back.ceiling<front.ceiling then parts[#parts+1]={top=sy(front.ceiling),bottom=sy(back.ceiling),tex=seg.side.upper} end
+          if back.floor>front.floor then parts[#parts+1]={top=sy(back.floor),bottom=sy(front.floor),tex=seg.side.lower} end
+          if back.ceiling==front.ceiling and back.floor==front.floor and mid then parts[#parts+1]={top=top,bottom=bottom,tex=mid} end
+        end
+        for _,p in ipairs(parts) do
+          if p.bottom<p.top then p.top,p.bottom=p.bottom,p.top end
+          parts[#parts+1]={}
+        end
+        for i=1,#parts do
+          local p=parts[i]
+          if p.tex and p.bottom>p.top then
+            segs[#segs+1]={x1=math.max(1,math.floor(x1)),x2=math.min(r.w,math.floor(x2)),top=p.top,bottom=p.bottom,d=d,tex=p.tex}
+          end
+        end
       end
     end
   end
@@ -44,23 +65,18 @@ function M.walls(r,map,px,py,ang)
     for x=s.x1,s.x2 do
       local row=r.buf
       local shade=math.max(32,math.min(255,math.floor(255-s.d*0.012)))
-      local tx=s.tex and r.tex and r.tex.textures[s.tex]
-      if tx then
-        local pic=r.cache[s.tex]
-        if not pic then pic=texlib.buildPatch(r.tex,s.tex); r.cache[s.tex]=pic end
-        if pic then
-          local u=(x-s.x1)/math.max(1,s.x2-s.x1)
-          local col=math.floor(u*(pic.w-1))+1
-          for y=math.max(1,s.ya),math.min(r.h,s.yb) do
-            local v=(y-s.ya)/math.max(1,s.yb-s.ya)
-            local py=math.floor(v*(pic.h-1))+1
-            row[y][x]=pic.px[py][col] or shade
-          end
+      local pic=r.cache[s.tex]
+      if not pic then pic=texlib.buildPatch(r.tex,s.tex);r.cache[s.tex]=pic end
+      if pic then
+        local u=(x-s.x1)/math.max(1,s.x2-s.x1)
+        local col=math.max(1,math.min(pic.w,math.floor(u*(pic.w-1))+1))
+        for y=math.max(1,s.top),math.min(r.h,s.bottom) do
+          local v=(y-s.top)/math.max(1,s.bottom-s.top)
+          local py=math.max(1,math.min(pic.h,math.floor(v*(pic.h-1))+1))
+          row[y][x]=pic.px[py][col] or shade
         end
       else
-        for y=1,math.max(1,s.ya) do if row[y][x]==0 then row[y][x]=math.floor(shade*0.20) end end
-        for y=math.max(1,s.ya),math.min(r.h,s.yb) do row[y][x]=shade end
-        for y=math.min(r.h,s.yb)+1,r.h do if row[y][x]==0 then row[y][x]=math.floor(shade*0.12) end end
+        for y=math.max(1,s.top),math.min(r.h,s.bottom) do row[y][x]=shade end
       end
     end
   end
