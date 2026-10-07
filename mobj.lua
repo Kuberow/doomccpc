@@ -16,7 +16,13 @@ local defs={
  [2018]={kind="power",sprite="ARM1A0",amount=1},
  [2019]={kind="key",sprite="YKEYA0",amount=1},
  [2022]={kind="key",sprite="BSKUA0",amount=1},
- [2023]={kind="key",sprite="RKEYA0",amount=1},
+ [2023]={kind="key",sprite="RKEYA0",amount=1,key="red"},
+ [5]={kind="key",sprite="BKEYA0",amount=1,key="blue"},
+ [6]={kind="key",sprite="YKEYA0",amount=1,key="yellow"},
+ [13]={kind="key",sprite="RKEYA0",amount=1,key="red"},
+ [38]={kind="key",sprite="RSKUA0",amount=1,key="red"},
+ [39]={kind="key",sprite="YSKUA0",amount=1,key="yellow"},
+ [40]={kind="key",sprite="BSKUA0",amount=1,key="blue"},
  [2047]={kind="health",sprite="STIMA0",amount=10},
  [2048]={kind="health",sprite="MEDIA0",amount=25},
  [2015]={kind="ammo",sprite="CLIPA0",amount=10},
@@ -40,7 +46,8 @@ function M.update(list,player,map,dt)
       if M.distance(o,player)<28 then
         if o.def.kind=="health" then player.health=math.min(100,(player.health or 100)+o.def.amount)
         elseif o.def.kind=="ammo" then player.ammo=(player.ammo or 0)+o.def.amount
-        elseif o.def.kind=="armor" then player.armor=100 end
+        elseif o.def.kind=="armor" then player.armor=100
+        elseif o.def.kind=="key" then player.keys=player.keys or {};player.keys[o.def.key]=true end
         o.dead=true
       end
     elseif not o.dead and o.def.kind=="monster" then
