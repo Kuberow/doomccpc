@@ -1,9 +1,14 @@
 local M={}
 local bsp=dofile("bsp.lua")
-function M.new(w,h)
-  local r={w=w,h=h,buf={}}
+local texlib=dofile("textures.lua")
+function M.new(w,h,tex)
+  local r={w=w,h=h,buf={},tex=tex,cache={}}
   for y=1,h do r.buf[y]={} for x=1,w do r.buf[y][x]=0 end end
   return r
+end
+function M.palette(r)
+  if not r.tex or not r.tex.palette then return end
+  for i=0,255 do local p=i*3+1; if p+2<=#r.tex.palette then term.setPaletteColor(i,r.tex.palette:byte(p)/255,r.tex.palette:byte(p+1)/255,r.tex.palette:byte(p+2)/255) end end
 end
 function M.clear(r,c)
   for y=1,r.h do local row=r.buf[y]; for x=1,r.w do row[x]=c end end
@@ -29,7 +34,7 @@ function M.walls(r,map,px,py,ang)
         local h=math.max(1,math.min(r.h*2,18000/d))
         local ya=math.floor(r.h/2-h/2)
         local yb=math.floor(r.h/2+h/2)
-        segs[#segs+1]={x1=math.max(1,math.floor(x1)),x2=math.min(r.w,math.floor(x2)),ya=ya,yb=yb,d=d}
+        segs[#segs+1]={x1=math.max(1,math.floor(x1)),x2=math.min(r.w,math.floor(x2)),ya=ya,yb=yb,d=d,tex=seg.side and seg.side.middle}
       end
     end
   end
@@ -38,13 +43,29 @@ function M.walls(r,map,px,py,ang)
     for x=s.x1,s.x2 do
       local row=r.buf
       local shade=math.max(32,math.min(255,math.floor(255-s.d*0.012)))
-      for y=1,math.max(1,s.ya) do if row[y][x]==0 then row[y][x]=math.floor(shade*0.20) end end
-      for y=math.max(1,s.ya),math.min(r.h,s.yb) do row[y][x]=shade end
-      for y=math.min(r.h,s.yb)+1,r.h do if row[y][x]==0 then row[y][x]=math.floor(shade*0.12) end end
+      local tx=s.tex and r.tex and r.tex.textures[s.tex]
+      if tx then
+        local pic=r.cache[s.tex]
+        if not pic then pic=texlib.buildPatch(r.tex,s.tex); r.cache[s.tex]=pic end
+        if pic then
+          local u=(x-s.x1)/math.max(1,s.x2-s.x1)
+          local col=math.floor(u*(pic.w-1))+1
+          for y=math.max(1,s.ya),math.min(r.h,s.yb) do
+            local v=(y-s.ya)/math.max(1,s.yb-s.ya)
+            local py=math.floor(v*(pic.h-1))+1
+            row[y][x]=pic.px[py][col] or shade
+          end
+        end
+      else
+        for y=1,math.max(1,s.ya) do if row[y][x]==0 then row[y][x]=math.floor(shade*0.20) end end
+        for y=math.max(1,s.ya),math.min(r.h,s.yb) do row[y][x]=shade end
+        for y=math.min(r.h,s.yb)+1,r.h do if row[y][x]==0 then row[y][x]=math.floor(shade*0.12) end end
+      end
     end
   end
 end
 function M.present(r)
+  term.drawPixels(0,0,r.buf,r.w,r.h)
   local pal={"000000","202020","404040","606060","808080","a0a0a0","c0c0c0","e0e0e0"}
   local sx=math.max(1,math.floor(256/8))
   for y=1,r.h do
