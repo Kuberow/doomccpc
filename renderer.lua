@@ -82,7 +82,7 @@ function M.objects(r,map,objects,px,py,ang)
   for _,q in ipairs(list) do
     local name=q.o.def.sprite
     local pic=r.cache[name]
-    if not pic then pic=texlib.buildPatch(r.tex,name);r.cache[name]=pic end
+    if not pic then pic=texlib.spritePatch(r.tex,name);r.cache[name]=pic end
     if pic then
       local x0=math.floor(q.sx-q.size/2);local x1=math.floor(q.sx+q.size/2)
       for x=x0,x1 do if x>=0 and x<r.w then local u=(x-x0)/math.max(1,x1-x0);local col=math.floor(u*(pic.w-1))+1
