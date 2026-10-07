@@ -10,7 +10,7 @@ function M.build(raw)
       if off then
         local p=off*2+1
         while p<=#raw.data do
-          local n=M.u16(raw.data,p);p=p+2
+          local n=raw.u16(raw.data,p);p=p+2
           if n==65535 then break end
           list[#list+1]=n
         end
