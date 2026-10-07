@@ -7,6 +7,7 @@ local moblib=dofile("mobj.lua")
 local hudlib=dofile("hud.lua")
 local texlib=dofile("textures.lua")
 local planelib=dofile("planes.lua")
+local speciallib=dofile("specials.lua")
 
 local wad=wadlib.open("DOOM1.WAD")
 local map=maplib.build(wad,"E1M1")
@@ -45,7 +46,8 @@ while running do
     elseif a==keys.d then game.buttons.d=true
     elseif a==keys.left then game.buttons.left=true
     elseif a==keys.right then game.buttons.right=true
-    elseif a==keys.space then moblib.shoot(objects,game,game.angle) end
+    elseif a==keys.space then moblib.shoot(objects,game,game.angle)
+    elseif a==keys.e then speciallib.use(map,game) end
   elseif e=="key_up" then
     if a==keys.w then game.buttons.w=nil
     elseif a==keys.s then game.buttons.s=nil
@@ -56,6 +58,7 @@ while running do
   elseif e=="timer" and a==timer then
     game:think(1/35)
     moblib.update(objects,game,map,1/35)
+    speciallib.tick(map)
     frame()
     timer=os.startTimer(1/35)
   end
