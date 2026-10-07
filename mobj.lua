@@ -34,8 +34,16 @@ function M.spawn(map)
 end
 function M.distance(a,b)local x=a.x-b.x;local y=a.y-b.y;return math.sqrt(x*x+y*y) end
 function M.update(list,player,map,dt)
+  player.ammo=player.ammo or 50
   for _,o in ipairs(list) do
-    if not o.dead and o.def.kind=="monster" then
+    if not o.dead and o.def.kind~="monster" then
+      if M.distance(o,player)<28 then
+        if o.def.kind=="health" then player.health=math.min(100,(player.health or 100)+o.def.amount)
+        elseif o.def.kind=="ammo" then player.ammo=(player.ammo or 0)+o.def.amount
+        elseif o.def.kind=="armor" then player.armor=100 end
+        o.dead=true
+      end
+    elseif not o.dead and o.def.kind=="monster" then
       local dx=player.x-o.x;local dy=player.y-o.y;local d=math.sqrt(dx*dx+dy*dy)
       if d<900 then
         o.angle=math.atan(dy,dx)
@@ -60,6 +68,9 @@ function M.update(list,player,map,dt)
   end
 end
 function M.shoot(list,player,angle)
+  player.ammo=player.ammo or 50
+  if player.ammo<=0 then return false end
+  player.ammo=player.ammo-1
   local best=nil;local bd=1e9
   for _,o in ipairs(list) do
     if not o.dead and o.def.kind=="monster" then
@@ -73,5 +84,6 @@ function M.shoot(list,player,angle)
     end
   end
   if best then best.health=best.health-20;if best.health<=0 then best.dead=true end end
+  return true
 end
 return M
