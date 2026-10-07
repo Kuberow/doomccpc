@@ -1,64 +1,45 @@
--- DOOMCCPC
--- First engine milestone: native CraftOS-PC WAD loading.
--- Put your legally obtained DOOM1.WAD beside this file.
--- Audio is intentionally not implemented.
+-- DOOMCCPC native CraftOS-PC entry point
+local wadlib=dofile("wad.lua")
+local maplib=dofile("map.lua")
+local renderlib=dofile("renderer.lua")
 
-local wadlib = dofile("wad.lua")
-local WAD_PATH = "DOOM1.WAD"
+local wad=wadlib.open("DOOM1.WAD")
+local map=maplib.build(wad,"E1M1")
+local W,H=term.getSize(2)
+assert(term.setGraphicsMode(2),"CraftOS-PC graphics mode 2 is required")
+term.setFrozen(true)
 
-local wad = wadlib.open(WAD_PATH)
+local r=renderlib.new(W,H)
+local px,py=map.player.x,map.player.y
+local angle=math.rad(map.player.angle)
 
-local function printf(...)
-  print(string.format(...))
+local function frame()
+  renderlib.clear(r,0)
+  renderlib.walls(r,map,px,py,angle)
+  if term.drawPixels then
+    term.drawPixels(r.buf)
+  end
 end
 
-term.clear()
-term.setCursorPos(1,1)
-print("DOOMCCPC")
-print("--------")
-printf("WAD: %s", wad.ident)
-printf("Lumps: %d", #wad.lumps)
-
-local map = "E1M1"
-local mapid = wad:find(map)
-assert(mapid, map.." not found")
-
--- DOOM map lumps are stored consecutively after the map marker.
-local wanted = {
-  "THINGS", "LINEDEFS", "SIDEDEFS", "VERTEXES",
-  "SEGS", "SSECTORS", "NODES", "SECTORS", "REJECT", "BLOCKMAP"
-}
-
-local mapdata = {}
-for i,name in ipairs(wanted) do
-  local id = wad:find(name)
-  assert(id, "missing lump "..name)
-  assert(id > mapid, name.." is not after "..map)
-  mapdata[name] = wad:lump(id)
+local function move(dx,dy)
+  local c,s=math.cos(angle),math.sin(angle)
+  px=px+dx*c-dy*s
+  py=py+dx*s+dy*c
 end
 
-local vertices = wadlib.parseVertexes(mapdata.VERTEXES)
-local lines = wadlib.parseLinedefs(mapdata.LINEDEFS)
-local sides = wadlib.parseSidedefs(mapdata.SIDEDEFS)
-local sectors = wadlib.parseSectors(mapdata.SECTORS)
-local things = wadlib.parseThings(mapdata.THINGS)
-
-print("")
-printf("%s loaded.", map)
-printf("Vertices: %d", #vertices)
-printf("Linedefs: %d", #lines)
-printf("Sidedefs: %d", #sides)
-printf("Sectors: %d", #sectors)
-printf("Things: %d", #things)
-
-local player
-for _,thing in ipairs(things) do
-  if thing.type == 1 then player=thing break end
+frame()
+while true do
+  local e,a=coroutine.yield()
+  if e=="key" then
+    if a==keys.w then move(8,0)
+    elseif a==keys.s then move(-8,0)
+    elseif a==keys.a then move(0,-8)
+    elseif a==keys.d then move(0,8)
+    elseif a==keys.left then angle=angle-math.rad(5)
+    elseif a==keys.right then angle=angle+math.rad(5)
+    elseif a==keys.q or a==keys.escape then break end
+    frame()
+  end
 end
-
-assert(player, "E1M1 has no player start")
-printf("Player start: %d, %d angle %d", player.x, player.y, player.angle)
-
-print("")
-print("WAD parser online.")
-print("Next engine stage: BSP renderer + DOOM fixed-point math.")
+term.setFrozen(false)
+term.setGraphicsMode(0)
