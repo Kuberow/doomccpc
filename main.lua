@@ -6,6 +6,7 @@ local gamelib=dofile("game.lua")
 local moblib=dofile("mobj.lua")
 local hudlib=dofile("hud.lua")
 local texlib=dofile("textures.lua")
+local planelib=dofile("planes.lua")
 
 local wad=wadlib.open("DOOM1.WAD")
 local map=maplib.build(wad,"E1M1")
@@ -25,6 +26,8 @@ local timer=os.startTimer(1/35)
 
 local function frame()
   renderlib.clear(r,0)
+  local sec=map.sectors[map.player.sector or 1]
+  if sec then planelib.draw(r,wad,sec.floorpic,game.x,game.y,game.angle,false); planelib.draw(r,wad,sec.ceilingpic,game.x,game.y,game.angle,true) end
   renderlib.walls(r,map,game.x,game.y,game.angle)
   renderlib.objects(r,map,objects,game.x,game.y,game.angle)
   hudlib.draw(r,game,game.ammo or 0,game.health)
