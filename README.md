@@ -24,3 +24,8 @@ This repository is under active development.
 - Native HUD/crosshair
 
 The project intentionally does not contain DOOM WAD data.
+
+- BLOCKMAP-based collision indexing
+- Two-sided sector-height wall rendering
+- Key cards/skull keys and locked doors
+- Level exit and restart states
