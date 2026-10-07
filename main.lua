@@ -8,6 +8,7 @@ local hudlib=dofile("hud.lua")
 local texlib=dofile("textures.lua")
 local planelib=dofile("planes.lua")
 local speciallib=dofile("specials.lua")
+local automaplib=dofile("automap.lua")
 
 local wad=wadlib.open("DOOM1.WAD")
 local map=maplib.build(wad,"E1M1")
@@ -23,10 +24,12 @@ game.health=100
 local objects=moblib.spawn(map)
 local keysDown={}
 local running=true
+local automap=false
 local timer=os.startTimer(1/35)
 
 local function frame()
   renderlib.clear(r,0)
+  if automap then automaplib.draw(r,map,game); return end
   local sec=map.sectors[map.player.sector or 1]
   if sec then planelib.draw(r,wad,sec.floorpic,game.x,game.y,game.angle,false); planelib.draw(r,wad,sec.ceilingpic,game.x,game.y,game.angle,true) end
   renderlib.walls(r,map,game.x,game.y,game.angle)
@@ -47,7 +50,8 @@ while running do
     elseif a==keys.left then game.buttons.left=true
     elseif a==keys.right then game.buttons.right=true
     elseif a==keys.space then moblib.shoot(objects,game,game.angle)
-    elseif a==keys.e then speciallib.use(map,game) end
+    elseif a==keys.e then speciallib.use(map,game)
+    elseif a==keys.tab then automap=not automap end
   elseif e=="key_up" then
     if a==keys.w then game.buttons.w=nil
     elseif a==keys.s then game.buttons.s=nil
