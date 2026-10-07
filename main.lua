@@ -27,7 +27,7 @@ local function frame()
   renderlib.clear(r,0)
   renderlib.walls(r,map,game.x,game.y,game.angle)
   renderlib.objects(r,map,objects,game.x,game.y,game.angle)
-  hudlib.draw(r,game,50,game.health)
+  hudlib.draw(r,game,game.ammo or 0,game.health)
   if term.drawPixels then term.drawPixels(0,0,r.buf,W,H) end
 end
 
