@@ -33,7 +33,7 @@ end
 
 function M.patch(tex)
   local d=tex.wad:lump(tex.name)
-  local w=u16(d,5); local h=u16(d,7); local cols={}
+  local w=u16(d,1); local h=u16(d,3); local cols={}
   for x=0,w-1 do
     local p=u32(d,9+x*4)+1; local posts={}
     while true do
@@ -48,6 +48,10 @@ function M.patch(tex)
   return {w=w,h=h,cols=cols}
 end
 
+function M.spritePatch(tex,name)
+  if not tex.wad:has(name) then return nil end
+  return M.patch({wad=tex.wad,name=name})
+end
 function M.buildPatch(tex,name)
   local tx=tex.textures[name]
   if not tx then return nil end
