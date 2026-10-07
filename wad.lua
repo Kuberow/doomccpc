@@ -163,7 +163,7 @@ function M.parseNodes(data)
 end
 function M.parseBlockmap(data)
   assert(#data >= 8 and #data % 2 == 0, "BLOCKMAP has invalid size")
-  local t={originx=M.s16(data,1),originy=M.s16(data,3),width=M.u16(data,5),height=M.u16(data,7),offsets={},data=data}
+  local t={originx=M.s16(data,1),originy=M.s16(data,3),width=M.u16(data,5),height=M.u16(data,7),offsets={},data=data,u16=M.u16}
   for p=9,#data,2 do t.offsets[#t.offsets+1]=M.u16(data,p) end
   return t
 end
