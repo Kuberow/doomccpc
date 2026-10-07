@@ -1,4 +1,5 @@
 local M={}
+local cache={}
 function M.load(wad,name)
   if not wad:has(name) then return nil end
   local d=wad:lump(name)
@@ -8,7 +9,9 @@ function M.load(wad,name)
   return p
 end
 function M.draw(r,wad,name,px,py,ang,top)
-  local p=M.load(wad,name); if not p then return end
+  local p=cache[name]
+  if not p then p=M.load(wad,name);cache[name]=p end
+  if not p then return end
   local ca,sa=math.cos(ang),math.sin(ang)
   local horizon=math.floor(r.h/2)
   local plane=top and 120 or -120
