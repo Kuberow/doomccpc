@@ -38,10 +38,16 @@ local running=true
 local automap=false
 local dead=false
 local deadTimer=0
+local victory=false
 local timer=os.startTimer(1/35)
 
 local function frame()
   renderlib.clear(r,0)
+  if victory then
+    for y=1,H do for x=1,W do r.buf[y][x]=(y>H/2) and 96 or 32 end end
+    if term.drawPixels then term.drawPixels(0,0,r.buf,W,H) end
+    return
+  end
   if dead then
     for y=1,H do for x=1,W do if y>H/2 then r.buf[y][x]=math.floor((y/H)*64) else r.buf[y][x]=0 end end end
     if term.drawPixels then term.drawPixels(0,0,r.buf,W,H) end
@@ -60,7 +66,8 @@ frame()
 while running do
   local e,a=os.pullEvent()
   if e=="key" then
-    if dead then if a==keys.enter or a==keys.space then loadMap(mapname); dead=false; frame() end
+    if dead then if a==keys.enter or a==keys.space then loadMap(mapname); dead=false; victory=false; frame() end
+    elseif victory then if a==keys.enter or a==keys.space then loadMap("E1M1"); victory=false; frame() end
     else
       if a==keys.q or a==keys.escape then running=false
       elseif a==keys.w then game.buttons.w=true
@@ -70,7 +77,7 @@ while running do
       elseif a==keys.left then game.buttons.left=true
       elseif a==keys.right then game.buttons.right=true
       elseif a==keys.space then weaponlib.fire(weapon,objects,game,game.angle)
-      elseif a==keys.e then speciallib.use(map,game)
+      elseif a==keys.e then local result=speciallib.use(map,game); if result=="exit" then victory=true end
       elseif a==keys.tab then automap=not automap
       elseif a==keys.f1 then loadMap("E1M1")
       elseif a==keys.f2 then loadMap("E1M2")
