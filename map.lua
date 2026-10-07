@@ -32,6 +32,10 @@ function M.build(wad,mapname)
   local p
   for _,t in ipairs(th) do if t.type==1 then p=t;break end end
   assert(p,"no player start")
+  for _,t in ipairs(th) do if t.type==1 then
+    for _,l in ipairs(ld) do if l.right and l.right.sector and sec[l.right.sector+1] then p.sector=l.right.sector+1; break end end
+    break
+  end end
   out.player=p
   return out
 end
