@@ -15,7 +15,8 @@ function M.build(wad,mapname)
   local segs=wadlib.parseSegs(get("SEGS"))
   local ssectors=wadlib.parseSubsectors(get("SSECTORS"))
   local nodes=wadlib.parseNodes(get("NODES"))
-  local out={vertices=v,linedefs=ld,sidedefs=sd,sectors=sec,things=th,segs=segs,subsectors=ssectors,nodes=nodes}
+  local blockmap=wadlib.parseBlockmap(get("BLOCKMAP"))
+  local out={vertices=v,linedefs=ld,sidedefs=sd,sectors=sec,things=th,segs=segs,subsectors=ssectors,nodes=nodes,blockmap=blockmap}
   for _,l in ipairs(ld) do
     l.v1=v[l.v1+1]; l.v2=v[l.v2+1]
     l.right=sd[l.right+1]
