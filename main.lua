@@ -21,7 +21,16 @@ local r=renderlib.new(W,H,textures)
 renderlib.palette(r)
 local game=gamelib.new(map)
 game.health=100
+game.ammo=50
 local objects=moblib.spawn(map)
+local mapname="E1M1"
+local function loadMap(name)
+  if not wad:has(name) then return false end
+  map=maplib.build(wad,name); mapname=name
+  game=gamelib.new(map); game.health=100; game.ammo=50
+  objects=moblib.spawn(map)
+  return true
+end
 local keysDown={}
 local running=true
 local automap=false
@@ -51,7 +60,16 @@ while running do
     elseif a==keys.right then game.buttons.right=true
     elseif a==keys.space then moblib.shoot(objects,game,game.angle)
     elseif a==keys.e then speciallib.use(map,game)
-    elseif a==keys.tab then automap=not automap end
+    elseif a==keys.tab then automap=not automap
+    elseif a==keys.f1 then loadMap("E1M1")
+    elseif a==keys.f2 then loadMap("E1M2")
+    elseif a==keys.f3 then loadMap("E1M3")
+    elseif a==keys.f4 then loadMap("E1M4")
+    elseif a==keys.f5 then loadMap("E1M5")
+    elseif a==keys.f6 then loadMap("E1M6")
+    elseif a==keys.f7 then loadMap("E1M7")
+    elseif a==keys.f8 then loadMap("E1M8")
+    elseif a==keys.f9 then loadMap("E1M9") end
   elseif e=="key_up" then
     if a==keys.w then game.buttons.w=nil
     elseif a==keys.s then game.buttons.s=nil
