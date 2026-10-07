@@ -4,6 +4,7 @@ local maplib=dofile("map.lua")
 local renderlib=dofile("renderer.lua")
 local gamelib=dofile("game.lua")
 local moblib=dofile("mobj.lua")
+local hudlib=dofile("hud.lua")
 local texlib=dofile("textures.lua")
 
 local wad=wadlib.open("DOOM1.WAD")
@@ -26,6 +27,7 @@ local function frame()
   renderlib.clear(r,0)
   renderlib.walls(r,map,game.x,game.y,game.angle)
   renderlib.objects(r,map,objects,game.x,game.y,game.angle)
+  hudlib.draw(r,game,50,game.health)
   if term.drawPixels then term.drawPixels(0,0,r.buf,W,H) end
 end
 
