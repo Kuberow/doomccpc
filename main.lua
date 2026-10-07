@@ -3,14 +3,17 @@ local wadlib=dofile("wad.lua")
 local maplib=dofile("map.lua")
 local renderlib=dofile("renderer.lua")
 local gamelib=dofile("game.lua")
+local texlib=dofile("textures.lua")
 
 local wad=wadlib.open("DOOM1.WAD")
 local map=maplib.build(wad,"E1M1")
+local textures=texlib.init(wad)
 local W,H=term.getSize(2)
 assert(term.setGraphicsMode(2),"CraftOS-PC graphics mode 2 is required")
 term.setFrozen(true)
 
-local r=renderlib.new(W,H)
+local r=renderlib.new(W,H,textures)
+renderlib.palette(r)
 local game=gamelib.new(map)
 local keysDown={}
 local running=true
@@ -19,7 +22,7 @@ local timer=os.startTimer(1/35)
 local function frame()
   renderlib.clear(r,0)
   renderlib.walls(r,map,game.x,game.y,game.angle)
-  if term.drawPixels then term.drawPixels(r.buf) end
+  if term.drawPixels then term.drawPixels(0,0,r.buf,W,H) end
 end
 
 frame()
