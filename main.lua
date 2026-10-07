@@ -61,26 +61,27 @@ while running do
   local e,a=os.pullEvent()
   if e=="key" then
     if dead then if a==keys.enter or a==keys.space then loadMap(mapname); dead=false; frame() end
-    elseif
-    if a==keys.q or a==keys.escape then running=false
-    elseif a==keys.w then game.buttons.w=true
-    elseif a==keys.s then game.buttons.s=true
-    elseif a==keys.a then game.buttons.a=true
-    elseif a==keys.d then game.buttons.d=true
-    elseif a==keys.left then game.buttons.left=true
-    elseif a==keys.right then game.buttons.right=true
-    elseif a==keys.space then weaponlib.fire(weapon,objects,game,game.angle)
-    elseif a==keys.e then speciallib.use(map,game)
-    elseif a==keys.tab then automap=not automap
-    elseif a==keys.f1 then loadMap("E1M1")
-    elseif a==keys.f2 then loadMap("E1M2")
-    elseif a==keys.f3 then loadMap("E1M3")
-    elseif a==keys.f4 then loadMap("E1M4")
-    elseif a==keys.f5 then loadMap("E1M5")
-    elseif a==keys.f6 then loadMap("E1M6")
-    elseif a==keys.f7 then loadMap("E1M7")
-    elseif a==keys.f8 then loadMap("E1M8")
-    elseif a==keys.f9 then loadMap("E1M9") end
+    else
+      if a==keys.q or a==keys.escape then running=false
+      elseif a==keys.w then game.buttons.w=true
+      elseif a==keys.s then game.buttons.s=true
+      elseif a==keys.a then game.buttons.a=true
+      elseif a==keys.d then game.buttons.d=true
+      elseif a==keys.left then game.buttons.left=true
+      elseif a==keys.right then game.buttons.right=true
+      elseif a==keys.space then weaponlib.fire(weapon,objects,game,game.angle)
+      elseif a==keys.e then speciallib.use(map,game)
+      elseif a==keys.tab then automap=not automap
+      elseif a==keys.f1 then loadMap("E1M1")
+      elseif a==keys.f2 then loadMap("E1M2")
+      elseif a==keys.f3 then loadMap("E1M3")
+      elseif a==keys.f4 then loadMap("E1M4")
+      elseif a==keys.f5 then loadMap("E1M5")
+      elseif a==keys.f6 then loadMap("E1M6")
+      elseif a==keys.f7 then loadMap("E1M7")
+      elseif a==keys.f8 then loadMap("E1M8")
+        elseif a==keys.f9 then loadMap("E1M9") end
+    end
   elseif e=="key_up" and not dead then
     if a==keys.w then game.buttons.w=nil
     elseif a==keys.s then game.buttons.s=nil
@@ -92,7 +93,7 @@ while running do
     if not dead then
       game:think(1/35)
       weaponlib.tick(weapon)
-    moblib.update(objects,game,map,1/35)
+      moblib.update(objects,game,map,1/35)
       speciallib.tick(map)
         if game.health<=0 then dead=true;deadTimer=0 end
       frame()
