@@ -3,6 +3,7 @@ local wadlib=dofile("wad.lua")
 local maplib=dofile("map.lua")
 local renderlib=dofile("renderer.lua")
 local gamelib=dofile("game.lua")
+local moblib=dofile("mobj.lua")
 local texlib=dofile("textures.lua")
 
 local wad=wadlib.open("DOOM1.WAD")
@@ -15,6 +16,8 @@ term.setFrozen(true)
 local r=renderlib.new(W,H,textures)
 renderlib.palette(r)
 local game=gamelib.new(map)
+game.health=100
+local objects=moblib.spawn(map)
 local keysDown={}
 local running=true
 local timer=os.startTimer(1/35)
@@ -22,6 +25,7 @@ local timer=os.startTimer(1/35)
 local function frame()
   renderlib.clear(r,0)
   renderlib.walls(r,map,game.x,game.y,game.angle)
+  renderlib.objects(r,map,objects,game.x,game.y,game.angle)
   if term.drawPixels then term.drawPixels(0,0,r.buf,W,H) end
 end
 
@@ -35,7 +39,8 @@ while running do
     elseif a==keys.a then game.buttons.a=true
     elseif a==keys.d then game.buttons.d=true
     elseif a==keys.left then game.buttons.left=true
-    elseif a==keys.right then game.buttons.right=true end
+    elseif a==keys.right then game.buttons.right=true
+    elseif a==keys.space then moblib.shoot(objects,game,game.angle) end
   elseif e=="key_up" then
     if a==keys.w then game.buttons.w=nil
     elseif a==keys.s then game.buttons.s=nil
@@ -45,6 +50,7 @@ while running do
     elseif a==keys.right then game.buttons.right=nil end
   elseif e=="timer" and a==timer then
     game:think(1/35)
+    moblib.update(objects,game,map,1/35)
     frame()
     timer=os.startTimer(1/35)
   end
