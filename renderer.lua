@@ -1,4 +1,5 @@
 local M={}
+local bsp=dofile("bsp.lua")
 function M.new(w,h)
   local r={w=w,h=h,buf={}}
   for y=1,h do r.buf[y]={} for x=1,w do r.buf[y][x]=0 end end
@@ -18,9 +19,9 @@ local function project(r,px,py,ang,x,y)
 end
 function M.walls(r,map,px,py,ang)
   local segs={}
-  for _,l in ipairs(map.linedefs) do
-    local x1,d1=project(r,px,py,ang,l.v1.x,l.v1.y)
-    local x2,d2=project(r,px,py,ang,l.v2.x,l.v2.y)
+  for _,seg in ipairs(bsp.collect(map,px,py)) do
+    local x1,d1=project(r,px,py,ang,seg.v1.x,seg.v1.y)
+    local x2,d2=project(r,px,py,ang,seg.v2.x,seg.v2.y)
     if x1 and x2 then
       if x1>x2 then x1,x2=x2,x1;d1,d2=d2,d1 end
       if x2>=1 and x1<=r.w then
