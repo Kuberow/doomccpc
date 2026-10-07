@@ -10,6 +10,7 @@ function M.use(map,player)
       local a=l.right and l.right.sector and map.sectors[l.right.sector+1]
       local b=l.left and l.left.sector and map.sectors[l.left.sector+1]
       local s=a or b
+      if l.special==11 or l.special==51 or l.special==52 then l.special=0; return "exit",l.special end
       if s then
         if l.special==1 or l.special==26 or l.special==27 or l.special==28 or l.special==31 or l.special==32 or l.special==33 or l.special==34 then
           if not s.open then s.closedCeiling=s.ceiling;s.open=true;s.ceiling=s.floor+128 end
