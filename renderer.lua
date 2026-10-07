@@ -1,6 +1,7 @@
 local M={}
 local bsp=dofile("bsp.lua")
 local texlib=dofile("textures.lua")
+local moblib=dofile("mobj.lua")
 function M.new(w,h,tex)
   local r={w=w,h=h,buf={},tex=tex,cache={}}
   for y=1,h do r.buf[y]={} for x=1,w do r.buf[y][x]=0 end end
@@ -61,6 +62,32 @@ function M.walls(r,map,px,py,ang)
         for y=math.max(1,s.ya),math.min(r.h,s.yb) do row[y][x]=shade end
         for y=math.min(r.h,s.yb)+1,r.h do if row[y][x]==0 then row[y][x]=math.floor(shade*0.12) end end
       end
+    end
+  end
+end
+function M.objects(r,map,objects,px,py,ang)
+  local list={}
+  for _,o in ipairs(objects) do
+    if not o.dead then
+      local dx=o.x-px; local dy=o.y-py; local ca=math.cos(ang); local sa=math.sin(ang)
+      local vx=dx*ca+dy*sa; local vy=-dx*sa+dy*ca
+      if vx>8 then
+        local sx=r.w/2+(vy/vx)*r.w*0.86
+        local size=math.max(2,math.min(r.h*2,3000/vx))
+        list[#list+1]={o=o,sx=sx,size=size,vx=vx}
+      end
+    end
+  end
+  table.sort(list,function(a,b)return a.vx>b.vx end)
+  for _,q in ipairs(list) do
+    local name=q.o.def.sprite
+    local pic=r.cache[name]
+    if not pic then pic=texlib.buildPatch(r.tex,name);r.cache[name]=pic end
+    if pic then
+      local x0=math.floor(q.sx-q.size/2);local x1=math.floor(q.sx+q.size/2)
+      for x=x0,x1 do if x>=0 and x<r.w then local u=(x-x0)/math.max(1,x1-x0);local col=math.floor(u*(pic.w-1))+1
+        for y=math.max(1,math.floor(r.h/2-q.size)),math.min(r.h,math.floor(r.h/2+q.size)) do local v=(y-(r.h/2-q.size))/math.max(1,2*q.size);local py=math.floor(v*(pic.h-1))+1;local c=pic.px[py][col];if c then r.buf[y][x]=c end end
+      end end
     end
   end
 end
