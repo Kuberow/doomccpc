@@ -1,6 +1,7 @@
 -- DOOM-style player movement and line collision.
 local M={}
 local RADIUS=16
+local blocklib=dofile("blockmap.lua")
 local function side(x,y,l)
   return (x-l.v1.x)*(l.v2.y-l.v1.y)-(y-l.v1.y)*(l.v2.x-l.v1.x)
 end
@@ -14,7 +15,11 @@ local function closest(x,y,l)
   return qx,qy,ax*ax+ay*ay
 end
 local function blocked(map,x,y)
-  for _,l in ipairs(map.linedefs) do
+  local candidates=nil
+  if map.blockmap then candidates=blocklib.query(blocklib.build(map.blockmap),x,y,RADIUS) end
+  local lines=map.linedefs
+  if candidates then lines={};for _,i in ipairs(candidates) do lines[#lines+1]=map.linedefs[i+1] end end
+  for _,l in ipairs(lines) do
     local _,_,d2=closest(x,y,l)
     if d2<RADIUS*RADIUS then
       if not l.left then return true end
