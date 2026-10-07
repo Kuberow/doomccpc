@@ -96,6 +96,7 @@ function M.objects(r,map,objects,px,py,ang)
   table.sort(list,function(a,b)return a.vx>b.vx end)
   for _,q in ipairs(list) do
     local name=q.o.def.sprite
+    if q.o.def.kind=="monster" and q.o.frame>1 then name=name:sub(1,4)..string.char(string.byte("A")+q.o.frame-1)..name:sub(6) end
     local pic=r.cache[name]
     if not pic then pic=texlib.spritePatch(r.tex,name);r.cache[name]=pic end
     if pic then
