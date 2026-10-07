@@ -9,6 +9,7 @@ local texlib=dofile("textures.lua")
 local planelib=dofile("planes.lua")
 local speciallib=dofile("specials.lua")
 local automaplib=dofile("automap.lua")
+local weaponlib=dofile("weapons.lua")
 
 local wad=wadlib.open("DOOM1.WAD")
 local map=maplib.build(wad,"E1M1")
@@ -23,12 +24,13 @@ local game=gamelib.new(map)
 game.health=100
 game.ammo=50
 local objects=moblib.spawn(map)
+local weapon=weaponlib.new()
 local mapname="E1M1"
 local function loadMap(name)
   if not wad:has(name) then return false end
   map=maplib.build(wad,name); mapname=name
   game=gamelib.new(map); game.health=100; game.ammo=50
-  objects=moblib.spawn(map)
+  objects=moblib.spawn(map); weapon=weaponlib.new()
   return true
 end
 local keysDown={}
@@ -43,7 +45,7 @@ local function frame()
   if sec then planelib.draw(r,wad,sec.floorpic,game.x,game.y,game.angle,false); planelib.draw(r,wad,sec.ceilingpic,game.x,game.y,game.angle,true) end
   renderlib.walls(r,map,game.x,game.y,game.angle)
   renderlib.objects(r,map,objects,game.x,game.y,game.angle)
-  hudlib.draw(r,game,game.ammo or 0,game.health)
+  hudlib.draw(r,game,weapon.ammo.bullets or 0,game.health)
   if term.drawPixels then term.drawPixels(0,0,r.buf,W,H) end
 end
 
@@ -58,7 +60,7 @@ while running do
     elseif a==keys.d then game.buttons.d=true
     elseif a==keys.left then game.buttons.left=true
     elseif a==keys.right then game.buttons.right=true
-    elseif a==keys.space then moblib.shoot(objects,game,game.angle)
+    elseif a==keys.space then weaponlib.fire(weapon,objects,game,game.angle)
     elseif a==keys.e then speciallib.use(map,game)
     elseif a==keys.tab then automap=not automap
     elseif a==keys.f1 then loadMap("E1M1")
@@ -79,6 +81,7 @@ while running do
     elseif a==keys.right then game.buttons.right=nil end
   elseif e=="timer" and a==timer then
     game:think(1/35)
+    weaponlib.tick(weapon)
     moblib.update(objects,game,map,1/35)
     speciallib.tick(map)
     frame()
